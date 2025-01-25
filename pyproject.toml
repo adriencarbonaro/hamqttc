@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hamqttc"
+version = "0.1.0"
+authors = [
+  { name = "Adrien CARBONARO", email = "carbonaro.adrien@gmail.com" }
+]
+description="MQTT client message based script launcher"
+dependencies = [
+  "requests",
+  'importlib-metadata; python_version>"3.7"',
+  "paho-mqtt",
+  "pyyaml"
+]
+
+[project.scripts]
+hamqttc = "hamqttc:main.main"
