@@ -1,0 +1,11 @@
+.vscode
+.settings
+.venv
+
+# python cache files
+__pycache__
+
+# python build files
+build
+dist
+*.egg-info
