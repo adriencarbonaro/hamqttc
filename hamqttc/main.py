@@ -1,41 +1,75 @@
 import os
-from hamqttc.config import load_config, setup_default_config
+import subprocess
+
+from config import Config
+from log import Log
 import paho.mqtt.client as mqtt
 
-def on_message(client, userdata, msg):
+logger = Log()
+
+def onMessage(client, userdata, msg):
     config = userdata
-    script_dir = config.get('scripts_dir')
+    scripts_dir = config.get('scripts_dir')
     topic = msg.topic
     payload = msg.payload.decode('utf-8')
-    script_path = os.path.join(script_dir, "{}.sh".format(topic))
-    if os.path.exists(script_path):
-        print(f"Executing script: {script_path} with payload: {payload}")
-        os.system(f"{script_path} '{payload}'")
-    else:
-        print(f"No script found for topic: {topic}")
+    logger.log(f"Received message on topic: {topic}")
+    topics_scripts = config.get('topics_scripts')
+    for topic_script in topics_scripts:
+        if topic_script['topic'] == topic:
+            script_path = os.path.join(scripts_dir, topic_script['script'])
+            if os.path.exists(script_path):
+                logger.log(f"Executing script: {os.path.basename(script_path)} with payload: {payload}")
+                subprocess.run([script_path, topic, payload])
+            else:
+                logger.log(f"Script not found: {script_path}")
+
+def mqttConnect(client, config):
+    try:
+        mqtt_config = config.get('mqtt_config')
+        mqtt_host = mqtt_config.get('host')
+        mqtt_port = int(mqtt_config.get('port'))
+        mqtt_username = mqtt_config.get('username')
+        mqtt_password = mqtt_config.get('password')
+    except Exception as e:
+        logger.log(f"Error getting config: {e}")
+        return 1
+
+    try:
+        client.username_pw_set(mqtt_username, mqtt_password)
+        client.connect(mqtt_host, mqtt_port, 60)
+    except Exception as e:
+        logger.log(f"Failed to connect to MQTT broker: {e}")
+        return 1
+    logger.log(f"Connected to MQTT broker at {mqtt_host}:{mqtt_port}")
+    return 0
 
 def main():
+    logger.log("Starting hamqttc")
+    config = Config(logger)
     config_file = os.path.expanduser("~/.config/hamqttc/config.yml")
-    # Check if config exists, otherwise create it
-    if not os.path.exists(config_file):
-        setup_default_config(config_file)
-        print(f"Default config created at {config_file}. Please update it with your MQTT settings.")
+    config.check(config_file)
+    config_dict = config.load(config_file)
+    logger.setup(config_dict['log_file'])
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, userdata=config_dict)
+    client.on_message = onMessage
+    if mqttConnect(client, config_dict) != 0:
         return
-    config = load_config(config_file)
-    client = mqtt.Client(userdata=config)
-    client.on_message = on_message
-    mqtt_host = config.get('mqtt_host', 'localhost')
-    mqtt_port = config.get('mqtt_port', 1883)
-    mqtt_username = config.get('mqtt_username')
-    mqtt_passwd = config.get('mqtt_passwd')
+
     try:
-        client.username_pw_set(mqtt_username, mqtt_passwd)
-        client.connect(mqtt_host, mqtt_port, 60)
-        client.subscribe("#")
-        print(f"Connected to MQTT broker at {mqtt_host}:{mqtt_port}")
+        topics = []
+        topics_scripts = config_dict.get('topics_scripts')
+        if topics_scripts == None:
+            raise Exception("Config key not found: topics_scripts")
+        for topic_script in topics_scripts:
+            topic = topic_script['topic']
+            if (topic not in topics):
+                topics.append(topic)
+        logger.log(f"Subscribing to {len(topics)} topics : {topics}")
+        for topic in topics:
+            client.subscribe(topic)
         client.loop_forever()
     except Exception as e:
-        print(f"Failed to connect to MQTT broker: {e}")
+        logger.log(f"MQTT Error: {e}")
 
 if __name__ == "__main__":
     main()
