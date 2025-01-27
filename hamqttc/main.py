@@ -1,5 +1,7 @@
 import os
 import subprocess
+import argparse
+from importlib.metadata import version as package_version
 
 from config import Config
 from log import Log
@@ -43,7 +45,15 @@ def mqttConnect(client, config):
     logger.log(f"Connected to MQTT broker at {mqtt_host}:{mqtt_port}")
     return 0
 
+def version():
+    version = package_version("hamqttc")
+    parser = argparse.ArgumentParser(prog='hamqttc', description='MQTT based script runner')
+    parser.add_argument('--version', action='version', version=f"%(prog)s {version}")
+    parser.parse_args()
+
 def main():
+    version()
+
     logger.log("Starting hamqttc")
     config = Config(logger)
     config_file = os.path.expanduser("~/.config/hamqttc/config.yml")
