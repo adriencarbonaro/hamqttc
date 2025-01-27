@@ -1,5 +1,3 @@
-import os
-
 class Log:
     def __init__(self):
         self.log_file = ""
@@ -7,7 +5,6 @@ class Log:
         self.log_queue = []
 
     def setup(self, log_file: str):
-        print(log_file)
         self.log_file = log_file
         self.is_setup = True
         self.flushLogQueue()
@@ -28,6 +25,3 @@ class Log:
                 f.write(msg + "\n")
         else:
             self.log_queue.append(msg)
-    
-    def display(self):
-        print(self.log_file)
