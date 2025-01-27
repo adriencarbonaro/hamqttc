@@ -1,3 +1,5 @@
+![logo](./logo.png)
+
 # Home Assistant MQTT Client
 
 **hamqttc** (**H**ome **A**ssistant **MQTT** **C**lient) is a Python-based MQTT client designed to allow users to execute custom scripts based on Home Assistant MQTT messages.
