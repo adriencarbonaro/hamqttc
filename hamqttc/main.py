@@ -2,10 +2,10 @@ import os
 import subprocess
 import argparse
 from importlib.metadata import version as package_version
-
-from config import Config
-from log import Log
 import paho.mqtt.client as mqtt
+
+from hamqttc.config import Config
+from hamqttc.log import Log
 
 logger = Log()
 

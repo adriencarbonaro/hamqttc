@@ -1,7 +1,7 @@
 import os
 import yaml
 from getpass import getpass as inputPassword
-from log import Log
+from hamqttc.log import Log
 
 DEFAULT_SCRIPTS_DIR = "scripts"
 DEFAULT_LOG_FILE = "~/.local/share/hamqttc/logs/hamqttc.log"
