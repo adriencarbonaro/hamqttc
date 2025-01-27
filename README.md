@@ -11,8 +11,37 @@
 
 ## Installation
 
-To install HAMQTTC, ensure you have Python 3.7 or later installed. You can then install the package using `pip`:
-
+Clone the project:
 ```bash
-pip install hamqttc
+git clone git@github.com:adriencarbonaro/hamqttc.git
+```
+
+`cd` inside the project:
+```bash
+cd hamqttc
+```
+
+Create virtual environment:
+```bash
+python -m venv .venv
+```
+
+Activate virtual env:
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+Build the project
+```bash
+python -m build
+```
+
+Now that the wheel is built, you can install it inside the venv or globally (check which pip you are using):
+```bash
+pip install --force-reinstall --upgrade dist/hamqttc-[version]-py3-none-any.whl
 ```
