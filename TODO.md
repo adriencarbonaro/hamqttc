@@ -1,1 +1,2 @@
 - One first launch, this error : MQTT Error: Config key not found: topics_scripts
+- Add level + timestamp to logs
